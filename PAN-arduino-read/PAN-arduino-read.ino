@@ -1,3 +1,10 @@
+/*
+ * PAN-writer-attiny
+ * written by Ingo Randolf 2018
+ * 
+ * GNU GPL 3
+ */
+
 #include <Packetizer.h>
 /*
  * using Packetizer

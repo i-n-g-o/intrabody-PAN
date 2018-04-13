@@ -1,4 +1,11 @@
 /*
+ * PAN-writer-attiny
+ * written by Ingo Randolf 2018
+ * 
+ * GNU GPL 3
+ */
+ 
+/*
  * Pinout ATtiny25/45/85
  *
  *                                        --------
