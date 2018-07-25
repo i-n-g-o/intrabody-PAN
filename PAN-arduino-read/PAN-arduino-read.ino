@@ -70,12 +70,13 @@ void setup() {
   // data input
   pinMode(2, INPUT); // PD2: ext interrupt
 
+  pinMode(7, OUTPUT); //PD7: error-led
   pinMode(8, OUTPUT); //PB0: pin-interrupt (1-bits)
   pinMode(9, OUTPUT); //PB1: timer interrupt
   pinMode(10, OUTPUT); //PB2: bit-output
   pinMode(11, OUTPUT); //PB3: bit-set toggle
   pinMode(12, OUTPUT); //PB4: preamble detected
-  pinMode(13, OUTPUT); //PB5: 'a' output
+  pinMode(13, OUTPUT); //PB5: data-match output
 
   PORTB = 0;
 
@@ -128,11 +129,14 @@ void setup() {
 void loop() {
 
   while(!error_ring.empty()) {
+    PORTD |= (1 << PD7);
     uint8_t i;
     error_ring.get(i);
     Serial.print("error: ");
-    Serial.println((int)i);
+    Serial.println((char)i);
   }
+  PORTD &= ~(1 << PD7);
+
 
   while(!ring.empty()) {
     uint8_t i;
@@ -207,6 +211,8 @@ void setBitValue(boolean _b) {
       if (incoming_preamble == preamble) {        
         // got a preamble... 
         PORTB |= (1 << PB4);
+        // turn off data-match led
+        PORTB &= ~(1 << PB5);
         
         // getting intersting here.
         incoming_preamble = 0;
@@ -214,6 +220,8 @@ void setBitValue(boolean _b) {
         
       } else {
         PORTB &= ~(1 << PB4);
+        // turn off data-match led
+        PORTB &= ~(1 << PB5);
       }
       break;
 
