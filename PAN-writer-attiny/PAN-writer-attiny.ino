@@ -23,7 +23,9 @@
  * https://github.com/bakercp/BufferUtils
  */
 
-#define PARITY_ODD;
+#define PARITY_ODD
+//#define PREAMBLE_ONLY
+
 /*
  * why ODD:
  * only zero-value should result in a non-valid byte
@@ -53,7 +55,7 @@
 
 
 long last_bit_time = 0;
-long last_time = 0;
+long last_data_time = 0;
 
 byte preamble = B10101010;
 int write_count = 7;
@@ -85,48 +87,60 @@ void setup() {
   TCCR1 = (1 << PWM1A) | (1 << COM1A1);
   OCR1C = 24; //24; // == ~3 us ~= 333 333,333 Hz
   OCR1A = 12; //12; // 50% duty
+
+#ifdef PREAMBLE_ONLY
+  toPreamble();
+#endif
+
+  last_data_time = last_bit_time = micros();
 }
 
 void loop() {
   
-  long _now = micros();  
-  if ((_now - last_bit_time) >= 200) {
+  long _now = micros();
+  
+  if ((_now - last_bit_time) >= 200) { //200
     // every 200 us
     // TODO: do this in a timer
     bitOut();
     last_bit_time = _now;
   }
-  
-  if ((_now - last_time) >= 200000) {
 
-    // use a start-prefix
-    sendData('s');
-    sendData('t');
-    sendData('a');
+#ifndef PREAMBLE_ONLY
+    if ((_now - last_data_time) >= 200000) {  
+      putData();      
+      last_data_time = _now;
+    }
+#endif
+}
 
-    // hello, world!
-    // problems with String on attiny - write out ascii values
-    sendData(104);
-    sendData(101);
-    sendData(108);
-    sendData(108);
-    sendData(111);
-    sendData(44);
-    sendData(32);
-    sendData(119);
-    sendData(111);
-    sendData(114);
-    sendData(108);
-    sendData(100);
-    sendData(33);
+void putData() {
 
-    // use a end-prefix
-    sendData('e');
-    sendData('n');
-    sendData('d');
-    
-    last_time = _now;
-  }
+  // use a start-prefix
+  sendData('s');
+  sendData('t');
+  sendData('a');
+
+  // hello, world!
+  // problems with String on attiny - write out ascii values
+  sendData(104);
+  sendData(101);
+  sendData(108);
+  sendData(108);
+  sendData(111);
+  sendData(44);
+  sendData(32);
+  sendData(119);
+  sendData(111);
+  sendData(114);
+  sendData(108);
+  sendData(100);
+  sendData(33);
+
+  // use a end-prefix
+  sendData('e');
+  sendData('n');
+  sendData('d');
 }
 
 //----------------------------------------------
@@ -189,10 +203,14 @@ void bitOut() {
     case NONE:
       // turn off
       pwmOff();
-            
+
+#ifdef PREAMBLE_ONLY
+      toPreamble();
+#else
       if (!ring.empty()) {        
         toPreamble();
       }
+#endif
       break;
 
     //----------------------------------------
@@ -209,8 +227,12 @@ void bitOut() {
       }
 
       if (--write_count < 0) {
-        // switch
+#ifdef PREAMBLE_ONLY
+        toPreamble();
+#else
+        // switch state
         writeNextByte();
+#endif
       }
       break;
 
