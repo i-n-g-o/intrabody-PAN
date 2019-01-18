@@ -25,6 +25,7 @@
 
 #define PARITY_ODD
 //#define PREAMBLE_ONLY
+//#define ALWAYS_ON
 
 /*
  * why ODD:
@@ -89,7 +90,11 @@ void setup() {
   OCR1A = 12; //12; // 50% duty
 
 #ifdef PREAMBLE_ONLY
-  toPreamble();
+  toPreamble();  
+#endif
+
+#ifdef ALWAYS_ON
+  pwmOn();
 #endif
 
   last_data_time = last_bit_time = micros();
@@ -98,13 +103,15 @@ void setup() {
 void loop() {
   
   long _now = micros();
-  
+
+#ifndef ALWAYS_ON
   if ((_now - last_bit_time) >= 200) { //200
     // every 200 us
     // TODO: do this in a timer
     bitOut();
     last_bit_time = _now;
   }
+#endif
 
 #ifndef PREAMBLE_ONLY
     if ((_now - last_data_time) >= 200000) {  
