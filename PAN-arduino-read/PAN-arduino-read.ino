@@ -10,7 +10,7 @@
  * using Packetizer
  * https://github.com/i-n-g-o/Packetizer
  */
-#include <RingBuffer.h>
+#include <CircularBuffer.h>
 /*
  * using BufferUtils by Christopher Baker:
  * https://github.com/bakercp/BufferUtils
@@ -50,10 +50,10 @@ volatile enum _readstate readstate = PREAMBLE;
 
 const size_t bufferSize = 128;
 uint8_t buffer[bufferSize];
-RingBuffer ring(buffer, bufferSize);
+CircularBuffer ring(buffer, bufferSize);
 
 uint8_t error_buffer[bufferSize];
-RingBuffer error_ring(error_buffer, bufferSize);
+CircularBuffer error_ring(error_buffer, bufferSize);
 
 boolean on = false;
 volatile boolean stop_req = false;
