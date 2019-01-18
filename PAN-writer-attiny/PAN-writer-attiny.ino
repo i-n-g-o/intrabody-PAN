@@ -17,7 +17,7 @@
  *
  */
 
-#include <RingBuffer.h>
+#include <CircularBuffer.h>
 /*
  * using BufferUtils by Christopher Baker:
  * https://github.com/bakercp/BufferUtils
@@ -67,7 +67,7 @@ byte parity_bit = 0;
 
 const size_t bufferSize = 128;
 uint8_t buffer[bufferSize];
-RingBuffer ring(buffer, bufferSize);
+CircularBuffer ring(buffer, bufferSize);
 
 enum _writestate {
   NONE,
